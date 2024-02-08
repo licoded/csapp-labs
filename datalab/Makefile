@@ -10,6 +10,9 @@ all: btest fshow ishow
 btest: btest.c bits.c decl.c tests.c btest.h bits.h
 	$(CC) $(CFLAGS) $(LIBS) -o btest bits.c btest.c decl.c tests.c
 
+test-%: btest
+	./btest -f $(@:test-%=%)
+
 fshow: fshow.c
 	$(CC) $(CFLAGS) -o fshow fshow.c
 
