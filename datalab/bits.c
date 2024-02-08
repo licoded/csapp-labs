@@ -143,7 +143,32 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  // Approach1: reverse each bit of x/y, then & with another!
+  //        That's wrong! ~x & y is not enough, need combine with x & ~y
+  //        But only using ~ & operators, I can't do the combination
+  // return ((~x) & y);
+
+
+  // Approach2: try reverse direction, try to get ~(x ^ y)
+  //      Impl1: ~(x & y) is wrong when a==b, it returns a but we want zero
+  //      Impl2: think how to fix Impl1...  What 0/1 means in (x & y)?
+  //        x & y:
+  //            0 bit: a and b are different
+  //                  OR both a and b are 0
+  //            1 bit: both a and b are 1
+  //
+  //        ===================================
+  //
+  //        ~(x & y):
+  //            0 bit: both a and b are 1
+  //            1 bit: a and b are different
+  //                  OR both a and b are 0
+  //        fix solution:
+  //            So, we just need to use `both_0` to block the part where `both a and b are 0`
+  //                                           i.e. only save the other parts by using 1
+  int reverse = x & y;
+  int both_0 = (~x) & (~y);
+  return ((~reverse) & (~both_0));
 }
 /* 
  * tmin - return minimum two's complement integer 
