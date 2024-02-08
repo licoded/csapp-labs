@@ -13,6 +13,13 @@ btest: btest.c bits.c decl.c tests.c btest.h bits.h
 test-%: btest
 	./btest -f $(@:test-%=%)
 
+check:
+	./dlc bits.c
+
+# print counts of the number of operators used by each function
+check-detail:
+	./dlc bits.c
+
 fshow: fshow.c
 	$(CC) $(CFLAGS) -o fshow fshow.c
 
