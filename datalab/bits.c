@@ -200,7 +200,25 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  /*
+   * My initial thought/approach is just OK/right!
+   * But I mistook the definition of odd bit: the number is from 0 instead of 1!
+   *
+   * I intentionally keep the printfs for Debug.
+   */
+
+  // printf("=== 0x%lx", x);
+  int odd_sm_base = 0xAA;
+  int odd_mid = odd_sm_base + (odd_sm_base << 8);
+  int odd_all = odd_mid + (odd_mid << 16);
+
+  int and_res = odd_all & x;
+  // printf("\t\t0x%lx", and_res);
+  // and_res should equal to odd_all
+  // printf("\t\t0x%lx", and_res ^ odd_all);
+  int equal_flag = !(and_res ^ odd_all);
+  // printf("\n");
+  return equal_flag;
 }
 /* 
  * negate - return -x 
