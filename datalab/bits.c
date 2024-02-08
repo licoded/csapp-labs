@@ -228,7 +228,14 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  /*
+   * My initial thought/approach is just OK/right!
+   * But I don't know how to deal with the boundary value: 0x8000,0000
+   * 
+   * Finally, I try C compile to tell me the result of -(INT_MAX), which is itself
+   *          I wonder why design/dispatch this, just adjust to the trans formula `~x+1`?
+   */
+  return (~x) + 1;
 }
 //3
 /* 
