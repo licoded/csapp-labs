@@ -20,6 +20,9 @@ check:
 check-detail:
 	./dlc bits.c
 
+commit:
+	git add bits.c && git ci
+
 fshow: fshow.c
 	$(CC) $(CFLAGS) -o fshow fshow.c
 
