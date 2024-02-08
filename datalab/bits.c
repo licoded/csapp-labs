@@ -188,8 +188,42 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  int Tmax = ~(1 << 31);
-  return !(x ^ Tmax);
+  // int Tmax = ~(1 << 31);
+  // Oh, no! The shift operator `<<` is not allowed!!!
+
+  // how can I get Tmax not using `<<`???
+  // int Tmax = ~0;
+  // seems impossible, is there another way to check isTmax without calc/get Tmax?
+  //                                i.e. use property of Tmax to check isTmax
+  //      Tmax = 0x7fff,ffff
+  //      Tmax & x == x, if x is non-negative
+  //               == x+(1<<31) == x+(-Tmin), if x is negative
+  //
+  //      what about the property of r_Tmax = reverse_Tmax == ~(Tmax)?
+  //      r_Tmax = 0x1000,0000
+  //      r_Tmax ^ x == x-(1<<31) ==    x+Tmin, if x is non-negative
+  //                 == x+(1<<31) == x+(-Tmin), if x is negative
+  //
+  //      Only Tmax+1 = Tmin is a huge change!!! Can I leverage this to check isTmax?
+  //      -x = ~x + 1, x-x = x+(-x) = x+ ~x + 1
+  //
+  //      (x+1)+(-(x+1)) == 0
+  //      (Tmax+1)+(-(Tmax+1)) = Tmin + (-Tmin) = Tmin + Tmin
+  //
+  //      So, I find that only Tmax SAT formula x+1 == -(x+1)
+
+  int x_plus_1 = x + 1;
+  int neg__x_plus_1 = (~x_plus_1) + 1;
+  int equal_flag = !(x_plus_1 ^ neg__x_plus_1);
+  // return equal_flag;
+
+  // Oh, no! From wrong test case -1, I find -1 also SAT the above formula
+  // So, I must fix it using following codes
+  int neg_one = ~0;
+  int is__neg_one = !(x ^ neg_one);
+
+  // I need equal_flag=true, is__neg_one=false
+  return equal_flag & (equal_flag ^ is__neg_one);
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
