@@ -248,7 +248,46 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  /*
+   * My approach: not as before (compare the numbers) 
+   *        STEP1: all bits before 0x3[0-9] are 0
+   *        STEP2: check the last 2nd bit in hex are 3
+   *        STEP3: check the last 1st bit in hex are 0-9, not A-F
+   */
+
+  /* STEP1 */
+  // int before_mask = ~(0xff); // simplication/reduction of (~1) ^ (0xff);
+  // int before_and_res = before_mask & x;
+  // int before_check_flag = !(before_and_res ^ before_mask);
+  // int before_check_flag = !(x & (~0xff)); // more easier and clean than above
+
+  /*
+   * The above approach is not easy, seems stupid, so I choose to change to
+   * My approach2: just as before (compare the numbers) 
+   *        STEP1: check whether not less than (>=) 0x30
+   *        STEP2: check whether not more than (<=) 0x39
+   * 
+   * Tools needed: 
+   *        1. check result is non-positive or non-negative
+   *              non-negative (>=) is very easy, just accroding to the highest binary bit
+   *        2. trans `>=` logic to `<=`, or reversely
+   *              `a <= b` to `b >= a`
+   *        3. trans `-` logic to `+`
+   *              `a-b >= 0` --> `a+(-b) >= 0`
+   */
+
+  int Tmin = 1 << 31; // Tmin
+
+  // x >= 0x30 --> x + (-0x30) >= 0
+  int x_sub_0x30 = x + (~0x30 + 1);
+  int x_geq_0x30_flag = !(x_sub_0x30 & Tmin);
+
+  // x <= 0x39 --> 0x39 + (-x) >= 0
+  int _0x39_sub_x = 0x39 + (~x + 1);
+  // whether x
+  int x_leq_0x39_flag = !(_0x39_sub_x & Tmin);
+
+  return x_geq_0x30_flag & x_leq_0x39_flag;
 }
 /* 
  * conditional - same as x ? y : z 
