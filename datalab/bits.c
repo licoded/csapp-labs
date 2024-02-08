@@ -297,7 +297,50 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  /* STEP1: change x to `0/1` only */
+  // x = !x;    // better than !!x, wrong!!!
+  // x = x ^ 0; // better than !!x, wrong!!!
+  // x = !!x;
+
+  int z_flag = !x;
+  int y_flag = !z_flag;
+
+  /* STEP2: how to choose y or z by `0/1` */
+  // My approach: 
+  //      0/1   --same op-->    0/Tmax          WRONG!!!
+  //      0/1   --same op-->    0/-1            RIGHT!!!
+  // int Tmax = ~(1 << 31);
+  //      0/1   --Tmax op-->    -1/Tmax
+  //            --   +1  -->    0/Tmin
+  //      0/1   --  <<31 -->    0/Tmin
+  //            -- +(0/1)-->    0/(-Tmax)
+  //            --   neg -->    0/Tmax
+
+  // int neg_y_res_part = (y_flag << 31) + y_flag;
+  // int y_res_part = (~neg_y_res_part) + 1;
+  // int neg_z_res_part = (z_flag << 31) + z_flag;
+  // int z_res_part = (~neg_z_res_part) + 1;
+  // return y_res_part + z_res_part;
+  // has problem, because `-Tmin == Tmin`!!!
+
+  // how to fix `Tmin` case???
+
+  // Oh, My approach is totally right, there is no `Tmin` case
+  //      only the impl is wrong
+  // int neg_y_mask = (y_flag << 31) + y_flag;
+  // int y_mask = (~neg_y_mask) + 1;
+  // int y_res_part = y_mask & y;
+  // int neg_z_mask = (z_flag << 31) + z_flag;
+  // int z_mask = (~neg_z_mask) + 1;
+  // int z_res_part = z_mask & z;
+  // return y_res_part + z_res_part;
+
+  // Oh, Line310 is wrong!!! Newly added Line311 is right!
+  int y_mask = (~y_flag) + 1;
+  int y_res_part = y_mask & y;
+  int z_mask = (~z_flag) + 1;
+  int z_res_part = z_mask & z;
+  return y_res_part + z_res_part;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
