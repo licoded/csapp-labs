@@ -384,7 +384,54 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int Tmin = 1 << 31;
+  // int is_Tmin = !(Tmin ^ x);
+  int x_is_Tmin = !(Tmin ^ x);
+  int y_is_Tmin = !(Tmin ^ y);
+
+  // approach: negation (<0) is easy to judge, same is non-negation (>=0)
+  //            lessOrEqual -- <=
+  //            x <= y   <==>    y >= x   <==>   y+(-x) >= 0 
+  int neg_x = (~x) + 1;     // CRUCIAL: this neg op has error for Tmin
+  int y_minus_x = y + neg_x;
+  int y_geq_x_flag = !(y_minus_x & Tmin);  
+  
+  // return (!is_Tmin) & y_geq_x_flag;
+
+  // fix1 thought: when x is Tmin, x <= y is true, 
+  //               so I don't need to deal with the error of neg op
+  // return y_geq_x_flag;
+
+  // fix2 solution code:
+  // case1: x is Tmin
+  int case1_flag = x_is_Tmin;
+  // case2: x is not Tmin
+  int case2_flag = (!x_is_Tmin) & y_geq_x_flag;
+  // return case1_flag | case2_flag;
+  // === But the problem is that, y_minus_x may overflow when the sign of x and y are different!!!
+
+  // fix3 solution: fix2 + pre-sign judge
+  // int sign_of_x = x >> 31;
+  // int sign_of_y = y >> 31;
+  // int sign_of_x = (x & Tmin) >> 31;
+  // int sign_of_y = (y & Tmin) >> 31;
+  int sign_of_x = !!(x & Tmin);
+  int sign_of_y = !!(y & Tmin);
+
+  int sign_differ_flag = sign_of_x ^ sign_of_y;
+  int x_is_neg_flag = sign_of_x;
+  int case0_flag = sign_differ_flag & x_is_neg_flag;
+
+  // printf("%d", sign_of_x);
+  // printf(" ");
+  // printf("%d", sign_of_y);
+  // printf(" ");
+  // printf("%d", case0_flag);
+  // printf(" ");
+  // printf("%d", sign_differ_flag);
+  // printf("\n");
+
+  return case0_flag | ((!sign_differ_flag) & (case1_flag | case2_flag));
 }
 //4
 /* 
