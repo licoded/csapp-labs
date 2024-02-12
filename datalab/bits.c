@@ -387,7 +387,7 @@ int isLessOrEqual(int x, int y) {
   int Tmin = 1 << 31;
   // int is_Tmin = !(Tmin ^ x);
   int x_is_Tmin = !(Tmin ^ x);
-  int y_is_Tmin = !(Tmin ^ y);
+  // int y_is_Tmin = !(Tmin ^ y);
 
   // approach: negation (<0) is easy to judge, same is non-negation (>=0)
   //            lessOrEqual -- <=
@@ -415,12 +415,21 @@ int isLessOrEqual(int x, int y) {
   // int sign_of_y = y >> 31;
   // int sign_of_x = (x & Tmin) >> 31;
   // int sign_of_y = (y & Tmin) >> 31;
-  int sign_of_x = !!(x & Tmin);
-  int sign_of_y = !!(y & Tmin);
+  // the above two versions are both wrong, because signed shift ops are with sign
+  // the below version is OK, but not elegant
+  // int sign_of_x = !!(x & Tmin);
+  // int sign_of_y = !!(y & Tmin);
 
-  int sign_differ_flag = sign_of_x ^ sign_of_y;
-  int x_is_neg_flag = sign_of_x;
-  int case0_flag = sign_differ_flag & x_is_neg_flag;
+  // int sign_differ_flag = sign_of_x ^ sign_of_y;
+  // int x_is_neg_flag = sign_of_x;
+  // int case0_flag = sign_differ_flag & x_is_neg_flag;
+
+  // the below version is OK and elegant
+  int x_is_non_neg = !(x & Tmin);
+  int y_is_non_neg = !(y & Tmin);
+  int sign_differ_flag = x_is_non_neg ^ y_is_non_neg;
+  int x_is_neg_flag = !x_is_non_neg;
+  // int case0_flag = sign_differ_flag & x_is_neg_flag;
 
   // printf("%d", sign_of_x);
   // printf(" ");
@@ -431,7 +440,9 @@ int isLessOrEqual(int x, int y) {
   // printf("%d", sign_differ_flag);
   // printf("\n");
 
-  return case0_flag | ((!sign_differ_flag) & (case1_flag | case2_flag));
+  int check_flag_when_sign_differ = (sign_differ_flag) & x_is_neg_flag;
+  int check_flag_when_sign_equal = (!sign_differ_flag) & (case1_flag | case2_flag);
+  return check_flag_when_sign_differ | check_flag_when_sign_equal;
 }
 //4
 /* 
