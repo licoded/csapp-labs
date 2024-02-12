@@ -458,9 +458,51 @@ int logicalNeg(int x) {
 
   // approach: >=0 and <=0
   int Tmin = 1 << 31;
-  int x_is_non_neg = !(x & Tmin);   // x >= 0
+  // int x_is_non_neg = !(x & Tmin);   // x >= 0
+  // int neg_x = ~x + 1;
+  // int neg_x_is_non_neg = !(neg_x & Tmin); //  neg_x >= 0
+  // return x_is_non_neg & neg_x_is_non_neg;
+  // using illegal ops `!`
+
+  // int x_is_neg = x & Tmin;   // x < 0
+  // int neg_x = ~x + 1;
+  // int neg_x_is_neg = neg_x & Tmin; //  neg_x < 0
+  // return x_is_neg & neg_x_is_neg;
+
+  // thought: I can use ^ to check equal, but the result is zero instead of one
+  //                                          how can I turn zero into one? use XOR(^)!!!
+  
+  // thought: get return_res without !
+  // x_is_non_neg & neg_x_is_non_neg == Tmin
+
+  // thought: neg_x == x && x != Tmin
+  // thought: neg_x == x && sign_of_x
+
+  // thought: isTmin  <==>  
+  //          Tmin/0  -- same ops --> 0/1 OR 1/0???
+
+  // thought: Tmin -- some ops --> 0 OR 1???
+  //          TMin ^ (Tmin + 1) = -1
+  //            0  ^ (Tmin + 1) = Tmin+1
+  //            0  ^ (  0  + 1) = 1
+
+  //          Tmin +/^ (0x0fffffff) = 0xffffffff
+  //            0  +/^ (0x0fffffff) = 0x0fffffff
+
+  //          0x00000001 - 1 = 0x00000000
+  //          0x00000000 - 1 = 0xffffffff
+
+  // OH!!!
+  //          Tmin >> 31 = 0xffffffff +1  = 0
+  //            0  >> 31 = 0x00000000 +1  = 1
+
+  int x_and_Tmin = (x & Tmin);   // x >= 0
+  int x_is_non_neg = (x_and_Tmin >> 31) + 1;
+  // int x_is_non_neg = 1 ^ x_is_neg;   // this line is because I mistake the non_neg and neg at first
   int neg_x = ~x + 1;
-  int neg_x_is_non_neg = !(neg_x & Tmin); //  neg_x >= 0
+  int neg_x_and_Tmin = (neg_x & Tmin); //  neg_x >= 0
+  int neg_x_is_non_neg = (neg_x_and_Tmin >> 31) + 1;
+  // int neg_x_is_non_neg = 1 ^ neg_x_is_neg;
   return x_is_non_neg & neg_x_is_non_neg;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
