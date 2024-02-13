@@ -212,18 +212,44 @@ int isTmax(int x) {
   //
   //      So, I find that only Tmax SAT formula x+1 == -(x+1)
 
+  // int x_plus_1 = x + 1;
+  // int neg__x_plus_1 = (~x_plus_1) + 1;
+  // int equal_flag = !(x_plus_1 ^ neg__x_plus_1);
+  // // return equal_flag;
+
+  // // Oh, no! From wrong test case -1, I find -1 also SAT the above formula
+  // // So, I must fix it using following codes
+  // int neg_one = ~0;
+  // int is__neg_one = !(x ^ neg_one);
+
+  // // I need equal_flag=true, is__neg_one=false
+  // return equal_flag & (equal_flag ^ is__neg_one);
+
   int x_plus_1 = x + 1;
   int neg__x_plus_1 = (~x_plus_1) + 1;
   int equal_flag = !(x_plus_1 ^ neg__x_plus_1);
-  // return equal_flag;
 
-  // Oh, no! From wrong test case -1, I find -1 also SAT the above formula
-  // So, I must fix it using following codes
-  int neg_one = ~0;
-  int is__neg_one = !(x ^ neg_one);
+  // I need equal_flag=true, and x_plus_1 is not equal to 0
+  return equal_flag & (!!x_plus_1);
 
-  // I need equal_flag=true, is__neg_one=false
-  return equal_flag & (equal_flag ^ is__neg_one);
+  /*
+   * I don't know why the following code doesn't work as expected
+   * But my conclusion is that never used undefined behaviors
+   */
+  // int x_plus_1 = x + 1;
+  // int x_plus_1____equal____Tmin = (!(x_plus_1 + x_plus_1)) & (!!x_plus_1);
+  // printf("%lx", (x_plus_1));
+  // printf(" ");
+  // printf("%lx", (x_plus_1 + x_plus_1));
+  // printf(" ");
+  // printf("%d", !(x_plus_1 + x_plus_1));
+  // printf(" ");
+  // printf("%d", (!!x_plus_1));
+  // printf(" ");
+  // printf("\n");
+
+  // // I need x_plus_1 == Tmin
+  // return x_plus_1____equal____Tmin;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
