@@ -529,6 +529,12 @@ int logicalNeg(int x) {
  */
 int howManyBits(int x) {
   int Tmin = 1 << 31;
+  int neg_1 = ~1 + 1;
+  int pow_2_16 = 1 << 16;
+  int neg_pow_2_16 = ~pow_2_16 + 1;  // positive - positive, will never overflow
+  int xor_mask;
+  int and_mask;
+  int shift_bits;
   int temp_x;
 
   // negative numbers: (the first zero idx from the right) + 1  // It's wrong!!!
@@ -628,8 +634,6 @@ int howManyBits(int x) {
   // 3 * 32
   // if (x < 0)
   //   x = ~x;
-  // int pow_2_16 = 1 << 16;
-  // int neg_pow_2_16 = ~pow_2_16 + 1;  // positive - positive, will never overflow
   // int x_minus_neg_pow_2_16 = x + neg_pow_2_16;
   // int x_geq_pow_2_16_flag = !(x_minus_neg_pow_2_16 & Tmin);
   // int res = 1;
@@ -644,8 +648,6 @@ int howManyBits(int x) {
 
   // if (x < 0)
   //   x = ~x;
-  // int pow_2_16 = 1 << 16;
-  // int neg_pow_2_16 = ~pow_2_16 + 1;  // positive - positive, will never overflow
   // int x_minus_neg_pow_2_16 = x + neg_pow_2_16;
   // int x_geq_pow_2_16_flag = !(x_minus_neg_pow_2_16 & Tmin);
   // int res = 1;
@@ -657,6 +659,42 @@ int howManyBits(int x) {
   //   x >>= 1;
   // }
   // return res;
+
+  /* STEP1: convert neg to equivalent non-neg */
+  int x_is_non_neg_flag = !(x & Tmin);
+  //  0/1   -- same ops -->   -1/0    (Just minus 1 is OK!!!)
+  xor_mask = x_is_non_neg_flag + neg_1;
+  x = x ^ xor_mask;
+  // Tmin/0 -- same ops -->   -1/0    Is there a solution that uses fewer ops than above
+
+  int res = 1;
+  /* STEP2: convert 32-bits problem to 16-bits problem */
+  int x_minus_neg_pow_2_16 = x + neg_pow_2_16;
+  int x_geq_pow_2_16_flag = !(x_minus_neg_pow_2_16 & Tmin);
+  and_mask = (!x_geq_pow_2_16_flag) + neg_1;
+  shift_bits = 16 & and_mask;
+  res = res + shift_bits;
+  x = x >> shift_bits;
+
+  /* solve 16-bits problem */
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+  res = res + !!x;  x = x >> 1;
+
+  return res;
 }
 //float
 /* 
