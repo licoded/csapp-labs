@@ -540,6 +540,7 @@ int howManyBits(int x) {
   int x_geq_pow_2_16_flag;
   // int temp_x;
   int res;
+  int temp_res;
 
   // negative numbers: (the first zero idx from the right) + 1  // It's wrong!!!
   //                    except -1, which has no zero
@@ -681,22 +682,25 @@ int howManyBits(int x) {
   x = x >> shift_bits;
 
   /* solve 16-bits problem */
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
-  res = res + !!x;  x = x >> 1;
+  temp_res = 0;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = temp_res + !x;  x = x >> 1;
+  temp_res = 16 + (~temp_res + 1);
+  res = res + temp_res;
 
   return res;
 }
