@@ -507,6 +507,16 @@ int logicalNeg(int x) {
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
+ 12 0000 1100
+    1111 0011
+-12 1111 0100
+       1 0100
+
+    0000 0000 0000 0000
+    (-1)*2^7
+
+
+
  *  Examples: howManyBits(12) = 5
  *            howManyBits(298) = 10
  *            howManyBits(-5) = 4
@@ -518,7 +528,135 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int Tmin = 1 << 31;
+  int temp_x;
+
+  // negative numbers: (the first zero idx from the right) + 1  // It's wrong!!!
+  //                    except -1, which has no zero
+
+  // negative numbers: (the first one idx from the left)  // That must be wrong!!!
+
+  // negative numbers: (the first zero idx from the left) + 1   // idx is numbered from 1 instead of 0, and from the right hand
+  //                    when it comes to -1, the result is 0+1=1
+  // positive numbers: (the last one idx from the right) + 1, also apply to 0!!!!
+  //                    when it comes to  0, the result is 0+1=1
+
+  // Then, how to calc the first idx???
+  // my thought: use the property of x and neg_x!
+  //      5: 0000,0101
+  //     -5: 1111,1011
+  // 5&(-5): 0x0000,0001  --  It's the first one idx from the right of 5
+
+  // If we can reverse the bits of 5, then we can get the first one idx from the left
+  //    uh, I can reverse by every 4/8/16 bits, but not elegant
+  //      5: 0000,0101
+  //    r_5: 1010,0000
+
+  // for positive nums, we can do following to find the last one idx from the right
+  //          iteratively >>, and from zero to plus !cur_val
+  //          i.e. while(x) {sum++, x >>= 1}
+  // int x_is_non_neg = !(x & Tmin);
+  // int res_when_non_neg;
+
+  // int temp_x = x;
+  // int equal_zero_counts_when_right_shift = 0;
+  // x = x >> 1; equal_zero_counts_when_right_shift = equal_zero_counts_when_right_shift + (!x);
+  // I realize that the ops numbers this approach needed are way larger than required!!!!
+
+  // for negative nums,
+  //          iteratively <<, count when it become Tmin
+  //          i.e. while(x!=Tmin) {sum++, x <<= 1}
+  // OR
+  //          iteratively >>, count when it become -1
+  //          i.e. while(x!=-1) {sum++, x >>= 1}
+  // int x_is_neg = !x_is_non_neg;
+  // int res_when_neg;
+
+  /* The following codes is OK by tests, but using invalid ops */
+  // temp_x = x;
+  // int equal_zero_counts = 0;
+  // int equal_neg_one_counts = 0;
+  // for(int i = 0; i < 32; i++) {
+  //   equal_zero_counts += (temp_x == 0);
+  //   equal_neg_one_counts += (temp_x == -1);
+  //   temp_x >>= 1;
+  // }
+  // res_when_non_neg = (32-equal_zero_counts)+1;
+  // res_when_neg = (32-equal_neg_one_counts)+1;
+  // return x_is_non_neg ? res_when_non_neg : res_when_neg;
+
+  // thought: pre-calc function/map for all 4 bits num
+  //    f(00) = 00, g(00) = 00;
+  //    f(01) = 00, g(01) = 00;
+  //    arg_f(0) = 0000
+  //    arg_f(1) = 0001
+  //    arg_f(2) = 0010,0011
+  //    arg_f(3) = 0100,0101,0110,0111
+  //    arg_f(4) = 1000,...
+  //  Sum up: f(XXX) = XXX>=1 + XXX>=2 + XXX>=4 + XXX>=8
+  //  f,g
+
+  // check whether can unify negative and non-negative
+  // the experiment result turns out it's OK!!!
+  /* The following codes is OK by tests, but using invalid ops */
+  // temp_x = x;
+  // if (x < 0)
+  //   temp_x = ~x;
+  // x_is_non_neg = !(temp_x & Tmin);
+  // int equal_zero_counts = 0;
+  // for(int i = 0; i < 32; i++) {
+  //   equal_zero_counts += !temp_x;
+  //   temp_x >>= 1;
+  // }
+  // res_when_non_neg = (32-equal_zero_counts)+1;
+  // return res_when_non_neg;
+
+  // temp_x = x;
+  // if (x < 0)
+  //   temp_x = ~x;
+  // x_is_non_neg = !(temp_x & Tmin);
+  // res_when_non_neg = 1;
+  // for(int i = 0; i < 32; i++) {
+  //   res_when_non_neg += !!temp_x;
+  //   temp_x >>= 1;
+  // }
+  // return res_when_non_neg;
+
+  // 16bit case
+  // > 2^16 >>
+  // 16 * 5
+  // 3 * 32
+  // if (x < 0)
+  //   x = ~x;
+  // int pow_2_16 = 1 << 16;
+  // int neg_pow_2_16 = ~pow_2_16 + 1;  // positive - positive, will never overflow
+  // int x_minus_neg_pow_2_16 = x + neg_pow_2_16;
+  // int x_geq_pow_2_16_flag = !(x_minus_neg_pow_2_16 & Tmin);
+  // int res = 1;
+  // res += (x_geq_pow_2_16_flag ? 16 : 0);
+  // x = (x_geq_pow_2_16_flag ? x >> 16 : x);
+  // x_is_non_neg = !(x & Tmin);
+  // for(int i = 0; i < 16; i++) {
+  //   res += !!x;
+  //   x >>= 1;
+  // }
+  // return res;
+
+  // if (x < 0)
+  //   x = ~x;
+  // int pow_2_16 = 1 << 16;
+  // int neg_pow_2_16 = ~pow_2_16 + 1;  // positive - positive, will never overflow
+  // int x_minus_neg_pow_2_16 = x + neg_pow_2_16;
+  // int x_geq_pow_2_16_flag = !(x_minus_neg_pow_2_16 & Tmin);
+  // int res = 1;
+  // res += (x_geq_pow_2_16_flag ? 16 : 0);
+  // x = (x_geq_pow_2_16_flag ? x >> 16 : x);
+  // x_is_non_neg = !(x & Tmin);
+  // for(int i = 0; i < 16; i++) {
+  //   res += !!x;
+  //   x >>= 1;
+  // }
+  // return res;
 }
 //float
 /* 
